@@ -1,0 +1,14 @@
+{
+    "applications": {
+        "MatchMe": {
+            "applicationId": "nDGRpIgZRdxJzxymmMDWPapgVLlq6Y8D2WoiMMQY", 
+            "masterKey": "HeFWaKpcppa4pmZRHEB1UBIcL1vK6Jm73EV8z0LD"
+        }, 
+        "_default": {
+            "link": "MatchMe"
+        }
+    }, 
+    "global": {
+        "parseVersion": "1.3.0"
+    }
+}
