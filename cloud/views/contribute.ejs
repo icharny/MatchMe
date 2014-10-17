@@ -83,6 +83,42 @@
               // alert('Failed to create new object, with error code: ' + error.message);
             }
           });
+
+          /*
+          todo: PayPal
+          Headers:
+            [
+              "X-PAYPAL-SECURITY-USERID:jb-us-seller_api1.paypal.com, ",
+              "X-PAYPAL-SECURITY-PASSWORD:WX4WTU3S8MY44S7F, ",
+              "X-PAYPAL-SECURITY-SIGNATURE:AFcWxV21C7fd0v3bYYYRCpSSRl31A7yDhhsPUU2XhtMoZXsWHFxu-RWy, ",
+              "X-PAYPAL-APPLICATION-ID:APP-80W284485P519543T, ",
+              "X-PAYPAL-REQUEST-DATA-FORMAT:NV, ",
+              "X-PAYPAL-RESPONSE-DATA-FORMAT:JSON, ",
+              "X-PAYPAL-DEVICE-IPADDRESS:127.0.0.1, ",
+              "X-PAYPAL-REQUEST-SOURCE:merchant-php-sdk-2.0.96, ",
+              "X-PAYPAL-SANDBOX-EMAIL-ADDRESS:Platform.sdk.seller@gmail.com, "
+            ]
+          Body:
+            actionType=PAY&
+            cancelUrl=https://www.c.com&
+            currencyCode=USD&
+            returnUrl=https://www.r.com&
+            requestEnvelope.errorLanguage=en_US&
+            receiverList.receiver(0).amount=50&
+            receiverList.receiver(0).email=billgates@microsoft.com
+          Response:
+          {
+            "responseEnvelope": 
+            {
+              "timestamp": "2014-10-17T13:59:42.366-07:00",
+              "ack": "Success",
+              "correlationId": "6d57a7118493a",
+              "build": "13085071"
+            },
+            "payKey": "AP-1FA9332788515363P",
+            "paymentExecStatus": "CREATED"
+          }     
+          */
         }
       }
       </script>

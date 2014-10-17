@@ -106,6 +106,111 @@
               // alert('Failed to create new object, with error code: ' + error.message);
             }
           });
+
+          /*
+          todo: PayPal
+          1. Preapproval
+            Headers: 
+              [
+                "X-PAYPAL-SECURITY-USERID:jb-us-seller_api1.paypal.com, ",
+                "X-PAYPAL-SECURITY-PASSWORD:WX4WTU3S8MY44S7F, ",
+                "X-PAYPAL-SECURITY-SIGNATURE:AFcWxV21C7fd0v3bYYYRCpSSRl31A7yDhhsPUU2XhtMoZXsWHFxu-RWy, ",
+                "X-PAYPAL-APPLICATION-ID:APP-80W284485P519543T, ",
+                "X-PAYPAL-REQUEST-DATA-FORMAT:NV, ",
+                "X-PAYPAL-RESPONSE-DATA-FORMAT:JSON, ",
+                "X-PAYPAL-DEVICE-IPADDRESS:127.0.0.1, ",
+                "X-PAYPAL-REQUEST-SOURCE:merchant-php-sdk-2.0.96, ",
+                "X-PAYPAL-SANDBOX-EMAIL-ADDRESS:Platform.sdk.seller@gmail.com, "
+              ]
+            Body:
+              cancelUrl=http://www.c.com&
+              currencyCode=USD&
+              returnUrl=http://www.r.com&
+              startingDate=2014-10-17T16:45:03.874-07:00&
+              requestEnvelope.errorLanguage=en_US&
+              endingDate=2014-10-19T16:45:03.874-07:00&
+              maxAmountPerPayment=100&
+              maxNumberOfPayments=1&
+              maxNumberOfPaymentsPerPeriod=1&
+              maxTotalAmountOfAllPayments=100
+            Response:
+              {
+                "responseEnvelope": 
+                  {
+                    "timestamp": "2014-10-17T13:43:28.725-07:00",
+                    "ack": "Success",
+                    "correlationId": "50c0d2e791eb3",
+                    "build": "13085071"
+                  },
+                "preapprovalKey": "PA-53G02729YY421840T"
+              }
+          2. Confirm Preapproval
+            Headers:
+              [
+                "X-PAYPAL-SECURITY-USERID:jb-us-seller_api1.paypal.com, ",
+                "X-PAYPAL-SECURITY-PASSWORD:WX4WTU3S8MY44S7F, ",
+                "X-PAYPAL-SECURITY-SIGNATURE:AFcWxV21C7fd0v3bYYYRCpSSRl31A7yDhhsPUU2XhtMoZXsWHFxu-RWy, ",
+                "X-PAYPAL-APPLICATION-ID:APP-80W284485P519543T, ",
+                "X-PAYPAL-REQUEST-DATA-FORMAT:NV, ",
+                "X-PAYPAL-RESPONSE-DATA-FORMAT:JSON, ",
+                "X-PAYPAL-DEVICE-IPADDRESS:127.0.0.1, ",
+                "X-PAYPAL-REQUEST-SOURCE:merchant-php-sdk-2.0.96, ",
+                "X-PAYPAL-SANDBOX-EMAIL-ADDRESS:Platform.sdk.seller@gmail.com, "
+              ]
+            Body:
+              preapprovalKey=PA-64Y90299W4680151E&
+              requestEnvelope.errorLanguage=en_US
+            Response:
+              {
+                "responseEnvelope": 
+                  {
+                    "timestamp": "2014-10-17T13:40:58.896-07:00",
+                    "ack": "Success",
+                    "correlationId": "e4d5e0cf74f1a",
+                    "build": "13085071"
+                  }
+                } 
+          3. Pay
+            Headers:
+              [
+                "X-PAYPAL-SECURITY-USERID:jb-us-seller_api1.paypal.com, ",
+                "X-PAYPAL-SECURITY-PASSWORD:WX4WTU3S8MY44S7F, ",
+                "X-PAYPAL-SECURITY-SIGNATURE:AFcWxV21C7fd0v3bYYYRCpSSRl31A7yDhhsPUU2XhtMoZXsWHFxu-RWy, ",
+                "X-PAYPAL-APPLICATION-ID:APP-80W284485P519543T, ",
+                "X-PAYPAL-REQUEST-DATA-FORMAT:NV, ",
+                "X-PAYPAL-RESPONSE-DATA-FORMAT:JSON, ",
+                "X-PAYPAL-DEVICE-IPADDRESS:127.0.0.1, ",
+                "X-PAYPAL-REQUEST-SOURCE:merchant-php-sdk-2.0.96, ",
+                "X-PAYPAL-SANDBOX-EMAIL-ADDRESS:Platform.sdk.seller@gmail.com, "
+              ]
+            Body:
+              actionType=PAY&
+              cancelUrl=HTTP://www.c.com&
+              currencyCode=USD&
+              returnUrl=http://www.r.com&
+              requestEnvelope.errorLanguage=en_US&
+              requestEnvelope.detailLevel=ReturnAll&
+              receiverList.receiver(0).amount=50&
+              receiverList.receiver(0).email=billgates@microsoft.com&
+              preapprovalKey=PA-64Y90299W4680151E
+            Response:
+              {
+                "responseEnvelope": 
+                  {
+                    "timestamp": "2014-10-17T13:41:07.750-07:00",
+                    "ack": "Success",
+                    "correlationId": "196e935f76940",
+                    "build": "13085071"
+                  },
+                "payKey": "AP-0P522203VH4345625",
+                "paymentExecStatus": "COMPLETED",
+                "paymentInfoList": null,
+                "sender": 
+                  {
+                    "accountId": "TWLK53YN7GDM6"
+                  }
+              } 
+          */
         }
       }
       </script>
