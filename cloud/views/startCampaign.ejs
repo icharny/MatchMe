@@ -1,0 +1,114 @@
+<html>
+  <head>
+    <title>Match Me</title>
+    <script src="//www.parsecdn.com/js/parse-1.3.0.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+  </head>
+  <body>
+    <script type="text/javascript" src="initializeParse.js"></script>
+    <script type="text/javascript" src="initializeFB.js"></script>
+    <script type="text/javascript" src="displayCharities.js"></script>
+    <script type="text/javascript" src="utilities.js"></script>
+    <script type="text/javascript">
+      var charitiesArray = [];
+      var Charity = Parse.Object.extend("Charity");
+      var query = new Parse.Query(Charity);
+      query.ascending("charityId");
+      query.find({
+        success: function(results) {
+          for (var i = 0; i < results.length; i++) { 
+            var object = results[i];
+            charitiesArray[i] = {charityName:object.get('name'), id:object.get('charityId'), description:object.get('description')};
+          }
+          populateCharities();
+        },
+        error: function(error) {
+          alert("Error: " + error.code + " " + error.message);
+        }
+      });
+
+      function populateCharities() {
+        var charities = document.getElementById('charityList');
+        var charitiesDropdown = document.getElementById('charitiesDropdown');
+        
+        for (var i = 0; i < charitiesArray.length; i++) {
+          displayCharity(charitiesArray[i], document.getElementById('charityList'), 'href_close_'+i, 'div_description_'+i);
+
+          var option = document.createElement('option');
+          option.text = charitiesArray[i]["charityName"];
+          option.value = charitiesArray[i]["id"];
+          charitiesDropdown.appendChild(option);
+        };
+      }
+
+      function generateUUID() {
+        var d = Date.now();
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          var r = (d + Math.random()*16)%16 | 0;
+          d = Math.floor(d/16);
+          return (c=='x' ? r : (r&0x7|0x8)).toString(16);
+        });
+        return uuid;
+      };
+    </script>
+    
+    <div class="form">
+      <div id='charityList'>
+      </div>
+      Amount: <input type="text" name="amount" id="amount">
+      <br>
+      Charity: <select name="charity" id='charitiesDropdown'></select>
+      <br>
+      <textarea rows="10" cols="50" id="whyImportant">This charity is important to me because </textarea>
+      <br>
+      Tag some friends: <select multiple id="friends" name="friends" enabled="false"></select>
+      <br>
+      <br>
+      <input type="button" value="Let's do this!" onclick="confirmCampaign()">
+      <script type="text/javascript">
+      function confirmCampaign() {
+        var amount = parseFloat(document.getElementById("amount").value, "pledge amount");
+        if (!isNaN(amount)) {
+          var charitiesDropdown = document.getElementById("charitiesDropdown");
+          var charity = charitiesDropdown.options[charitiesDropdown.selectedIndex].text;
+          var charityID = charitiesDropdown.options[charitiesDropdown.selectedIndex].value;
+          var why = document.getElementById("whyImportant").value;
+          var friendsMultiselect = document.getElementById("friends");
+          var friends = new Array();
+          var friendIDs = new Array();
+          for (var i = 1; i < friendsMultiselect.options.length; i++) {
+            if (friendsMultiselect.options[i].selected || friendsMultiselect.options[0].selected) {
+              friends.push(friendsMultiselect.options[i].text);
+              friendIDs.push(friendsMultiselect.options[i].value);
+            }
+          }
+          alert("Amount: " + roundToTwoDecimals(amount) + "\nCharity: " + charity + "\nWhy: " + why + "\nFriends: " + friends);
+
+          var Campaign = Parse.Object.extend("Campaign");
+          var campaign = new Campaign();
+
+          campaign.set("initiator", userID);
+          campaign.set("amount", amount);
+          campaign.set("charityId", charityID);
+          campaign.set("reason", why);
+          campaign.set("friends", friendIDs);
+          campaign.set("campaignId", generateUUID());
+
+          campaign.save(null, {
+            success: function(campaign) {
+              // Execute any campaign that should take place after the object is saved.
+              // alert('New object created with objectId: ' + campaign.id);
+              alert("Thank you for pledging!");
+            },
+            error: function(campaign, error) {
+              // Execute any logic that should take place if the save fails.
+              // error is a Parse.Error with an error code and message.
+              // alert('Failed to create new object, with error code: ' + error.message);
+            }
+          });
+        }
+      }
+      </script>
+    </div>
+  </body>
+</html>

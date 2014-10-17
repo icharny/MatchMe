@@ -1,0 +1,91 @@
+<html>
+  <head>
+    <title>Match Me</title>
+    <script src="//www.parsecdn.com/js/parse-1.3.0.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+  </head>
+  <body>
+    <script type="text/javascript" src="initializeParse.js"></script>
+    <script type="text/javascript" src="initializeFB.js"></script>
+    <script type="text/javascript" src="displayCharities.js"></script>
+    <script type="text/javascript" src="utilities.js"></script>
+    <script type="text/javascript">
+      var charity = null;
+
+      var Campaign = Parse.Object.extend("Campaign");
+      var query = new Parse.Query(Campaign);
+      var campaignId = '<%= campaignId %>';
+      query.equalTo("campaignId", campaignId);
+      query.first({
+        success: function(object) {
+          var Charity = Parse.Object.extend("Charity");
+          query = new Parse.Query(Charity);
+          query.equalTo("charityId", object.get('charityId'));
+          query.first({
+            success: function(object) {
+              charity = {charityName:object.get('name'), id:object.get('charityId'), description:object.get('description')};
+
+              displayCharity(charity, document.getElementById('charityList'), 'href_close', 'div_description');
+            },
+            error: function(error) {
+              alert("Error: " + error.code + " " + error.message);
+            }
+          });
+        },
+        error: function(error) {
+          alert("Campaign was not found. Please check that you have inputted the correct campaign ID in the URL.");
+        }
+      });
+    </script>
+    
+    <div class="form">
+      <div id='charityList'>
+      </div>
+      Amount: <input type="text" name="amount" id="amount">
+      <br>
+      Tag some friends: <select multiple id="friends" name="friends" enabled="false"></select>
+      <br>
+      <br>
+      <input type="button" value="Let's do this!" onclick="confirmCampaign()">
+      <script type="text/javascript">
+      function confirmCampaign() {
+        var amount = parseFloat(document.getElementById("amount").value, "contribution amount");
+        if (!isNaN(amount)) {
+          var friendsMultiselect = document.getElementById("friends");
+          var friends = new Array();
+          var friendIDs = new Array();
+          for (var i = 1; i < friendsMultiselect.options.length; i++) {
+            if (friendsMultiselect.options[i].selected || friendsMultiselect.options[0].selected) {
+              friends.push(friendsMultiselect.options[i].text);
+              friendIDs.push(friendsMultiselect.options[i].value);
+            }
+          }
+          alert("Amount: " + roundToTwoDecimals(amount) + "\nCharity: " + charity.charityName + "\nFriends: " + friends);
+
+          var CampaignContribution = Parse.Object.extend("CampaignContribution");
+          var contribution = new CampaignContribution();
+           
+          contribution.set("contributor", userID);
+          contribution.set("amount", amount);
+          contribution.set("charityId", charity.charityId);
+          contribution.set("friends", friendIDs);
+          contribution.set("campaignId", campaignId);
+
+          contribution.save(null, {
+            success: function(contribution) {
+              // Execute any campaign that should take place after the object is saved.
+              // alert('New object created with objectId: ' + contribution.id);
+              alert("Thank you for donating!");
+            },
+            error: function(contribution, error) {
+              // Execute any logic that should take place if the save fails.
+              // error is a Parse.Error with an error code and message.
+              // alert('Failed to create new object, with error code: ' + error.message);
+            }
+          });
+        }
+      }
+      </script>
+    </div>
+  </body>
+</html>

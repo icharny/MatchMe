@@ -1,0 +1,71 @@
+<html>
+  <head>
+    <title>Match Me</title>
+		<script src="//www.parsecdn.com/js/parse-1.3.0.min.js"></script>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+  </head>
+  <body>
+    <script type="text/javascript" src="initializeParse.js"></script>
+    <script type="text/javascript" src="displayCharities.js"></script>
+    <script type="text/javascript" src="utilities.js"></script>
+    <script type="text/javascript">
+    	var Campaign = Parse.Object.extend("Campaign");
+      var query = new Parse.Query(Campaign);
+      var campaignId = '<%= campaignId %>';
+      query.equalTo("campaignId", campaignId);
+      query.first({
+        success: function(object) {
+        	var Charity = Parse.Object.extend("Charity");
+          query = new Parse.Query(Charity);
+          query.equalTo("charityId", object.get('charityId'));
+          query.first({
+            success: function(object) {
+              charity = {charityName:object.get('name'), id:object.get('charityId'), description:object.get('description')};
+
+              displayCharity(charity, document.getElementById('charityList'), 'href_close', 'div_description');
+            },
+            error: function(error) {
+              alert("Error: " + error.code + " " + error.message);
+            }
+          });
+
+        	var pledged = parseFloat(object.get("amount"));
+      		var donated = 0.00;
+        	var CampaignContribution = Parse.Object.extend("CampaignContribution");
+        	query = new Parse.Query(CampaignContribution);
+          query.equalTo("campaignId", campaignId);
+          query.find({
+            success: function(results) {
+            	for (var i = 0; i < results.length; i++) {
+            		donated = donated + parseFloat(results[i].get('amount'));
+          		}
+
+          		var percent = roundToTwoDecimalsDefault(100*donated/pledged);
+          		document.getElementById('percentOfPledged').style.width = Math.min(percent, 100) + "%";
+          		document.getElementById('pledgedSpan').innerHTML = roundToTwoDecimalsDefault(pledged);
+          		document.getElementById('donatedSpan').innerHTML = roundToTwoDecimalsDefault(donated) + " (" + percent + "%)";
+							document.getElementById('totalSpan').innerHTML = roundToTwoDecimalsDefault(donated + Math.min(donated, pledged));
+            },
+            error: function(error) {
+              alert("Error: " + error.code + " " + error.message);
+            }
+          });
+        },
+        error: function(error) {
+          alert("Campaign was not found. Please check that you have inputted the correct campaign ID in the URL.");
+        }
+      });
+    </script>
+    <div class="form">
+    <div id='charityList'>
+      </div>
+	    <div class="meter">
+	    	<span style="width: 0%" id="percentOfPledged"></span>
+			</div>
+			<br>
+			Amount pledged: $<span id="pledgedSpan" style=""></span><br>
+			Amount donated: $<span id="donatedSpan"></span><br>
+			Total:          $<span id="totalSpan"></span>
+		</div>
+  </body>
+</html>

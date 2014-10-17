@@ -1,0 +1,67 @@
+<html>
+  <head>
+    <title>Match Me</title>
+    <script src="//www.parsecdn.com/js/parse-1.3.0.min.js"></script>
+    <style>
+      body { font-family: Helvetica, Arial, sans-serif; }
+      div { width: 800px; margin: 40px auto; padding: 20px; border: 2px solid #5298fc; }
+      h1 { font-size: 30px; margin: 0; }
+      p { margin: 40px 0; }
+      em { font-family: monospace; }
+      a { color: #5298fc; text-decoration: none; }
+      .right { float: right; } 
+      .hide { display: none; } 
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript" src="initializeParse.js"></script>
+    <script type="text/javascript">
+
+      function startCampaign() {
+        window.location = "/startCampaign"
+      }
+        
+      function contribute() {
+        var campaignId = document.getElementById("contributeCampaignIdTextField").value;
+        var Campaign = Parse.Object.extend("Campaign");
+        var query = new Parse.Query(Campaign);
+        query.equalTo("campaignId", campaignId);
+        query.first({
+          success: function(object) {
+            window.location = "/contribute?campaignId=" + campaignId;
+          },
+          error: function(error) {
+            alert("Campaign with ID " + campaignId + " was not found. Please check that you have inputted the correct campaign ID");
+          }
+        });
+      }
+
+      function checkProgress() {
+        var campaignId = document.getElementById("progressCampaignIdTextField").value;
+        var Campaign = Parse.Object.extend("Campaign");
+        var query = new Parse.Query(Campaign);
+        query.equalTo("campaignId", campaignId);
+        query.first({
+          success: function(object) {
+            window.location = "/campaignProgress?campaignId=" + campaignId;
+          },
+          error: function(error) {
+            alert("Campaign with ID " + campaignId + " was not found. Please check that you have inputted the correct campaign ID");
+          }
+        });
+      }
+    </script>
+    <div>
+      <input id="startCampaignButton" type="button" value="Start a MatchMe campaign" onclick="startCampaign()"/>
+      <br>
+      <form id="contributeForm">
+        <input id="contributeCampaignIdTextField" type="text" />  
+        <input id="contributeButton" type="button" value="&lt;-- Contribute to this campaign" onclick="contribute()"/>
+      </form>      
+      <br>
+      <form id="progressForm">
+        <input id="progressCampaignIdTextField" type="text" />  
+        <input id="checkProgressButton" type="button" value="&lt;-- Check the progress of this campaign" onclick="checkProgress()"/>
+      </form>
+    </div>
+</html>
