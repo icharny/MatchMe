@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Match Me</title>
+    <title>Contribute to a MatchMe Campaign</title>
     <script src="//www.parsecdn.com/js/parse-1.3.0.min.js"></script>
     <link rel="stylesheet" href="/stylesheets/styles.css">
   </head>
@@ -10,32 +10,120 @@
     <script type="text/javascript" src="displayCharities.js"></script>
     <script type="text/javascript" src="utilities.js"></script>
     <script type="text/javascript">
-      var charity = null;
+      function reset() {
+        document.getElementById("amount").value = '';
+      }
 
+      function campaignNotFound() {
+        alert('Campaign was not found, but feel free to start your own campagin!');
+        window.location.replace('http://matchme.parseapp.com');
+      }
+
+      var charity = null;
       var Campaign = Parse.Object.extend("Campaign");
       var query = new Parse.Query(Campaign);
       var campaignId = '<%= campaignId %>';
       query.equalTo("campaignId", campaignId);
       query.first({
         success: function(object) {
-          var Charity = Parse.Object.extend("Charity");
-          query = new Parse.Query(Charity);
-          query.equalTo("charityId", object.get('charityId'));
-          query.first({
-            success: function(object) {
-              charity = {charityName:object.get('name'), id:object.get('charityId'), description:object.get('description')};
+          if (object == null) {
+            campaignNotFound();
+          } else {
+            var createdTime = (new Date(object.createdAt)).getTime();
+            var now = (new Date()).getTime();
+            if (createdTime < now - (1000*60*60*24*2)) {
+              alert('This campaign has expired, but feel free to start your own campagin!');
+              window.location.replace('http://matchme.parseapp.com');
+            } else {
+              var Charity = Parse.Object.extend("Charity");
+              query = new Parse.Query(Charity);
+              query.equalTo("charityId", object.get('charityId'));
+              query.first({
+                success: function(object) {
+                  charity = {charityName:object.get('name'), id:object.get('charityId'), description:object.get('description')};
 
-              displayCharity(charity, document.getElementById('charityList'), 'href_close', 'div_description');
-            },
-            error: function(error) {
-              alert("Error: " + error.code + " " + error.message);
+                  displayCharity(charity, document.getElementById('charityList'), 'href_close', 'div_description');
+                },
+                error: function(error) {
+                  alert("Error: " + error.code + " " + error.message);
+                }
+              });
             }
-          });
+          }
         },
         error: function(error) {
-          alert("Campaign was not found. Please check that you have inputted the correct campaign ID in the URL.");
+          campaignNotFound();
         }
       });
+
+      function confirmPay() {
+        var amount = document.getElementById("amount").value;
+        var amountString = roundToTwoDecimals(amount, 'contribution amount');
+        if (!isNaN(amountString)) {
+          if(confirm('Charity: ' + charity.charityName + '\nAmount: $' + amountString)) {
+            hidePay();
+            var Contribution = Parse.Object.extend("Contribution");
+            var contribution = new Contribution();
+             
+            contribution.set("amount", parseFloat(amount.replace('$', '')));
+            contribution.set("charityId", charity.charityId);
+            contribution.set("campaignId", campaignId);
+
+            contribution.save(null, {
+              success: function(contribution) {
+                alert("Thank you for donating!");
+
+                var contributeLink = 'http://matchme.parseapp.com/contribute?campaignId=' + campaignId;
+                FB.ui({
+                  method: 'share',
+                  href: contributeLink,
+                }, function(response){});
+
+                reset();
+              },
+              error: function(contribution, error) {
+                alert('Something went wrong :-(. Contribution was not processed. Please wait a bit and try again.');
+              }
+            });
+
+            /*
+            todo: PayPal
+            Headers:
+              [
+                "X-PAYPAL-SECURITY-USERID:jb-us-seller_api1.paypal.com, ",
+                "X-PAYPAL-SECURITY-PASSWORD:WX4WTU3S8MY44S7F, ",
+                "X-PAYPAL-SECURITY-SIGNATURE:AFcWxV21C7fd0v3bYYYRCpSSRl31A7yDhhsPUU2XhtMoZXsWHFxu-RWy, ",
+                "X-PAYPAL-APPLICATION-ID:APP-80W284485P519543T, ",
+                "X-PAYPAL-REQUEST-DATA-FORMAT:NV, ",
+                "X-PAYPAL-RESPONSE-DATA-FORMAT:JSON, ",
+                "X-PAYPAL-DEVICE-IPADDRESS:127.0.0.1, ",
+                "X-PAYPAL-REQUEST-SOURCE:merchant-php-sdk-2.0.96, ",
+                "X-PAYPAL-SANDBOX-EMAIL-ADDRESS:Platform.sdk.seller@gmail.com, "
+              ]
+            Body:
+              actionType=PAY&
+              cancelUrl=https://www.c.com&
+              currencyCode=USD&
+              returnUrl=https://www.r.com&
+              requestEnvelope.errorLanguage=en_US&
+              receiverList.receiver(0).amount=50&
+              receiverList.receiver(0).email=billgates@microsoft.com
+            Response:
+            {
+              "responseEnvelope": 
+              {
+                "timestamp": "2014-10-17T13:59:42.366-07:00",
+                "ack": "Success",
+                "correlationId": "6d57a7118493a",
+                "build": "13085071"
+              },
+              "payKey": "AP-1FA9332788515363P",
+              "paymentExecStatus": "CREATED"
+            }     
+            */
+          }
+        }
+      }
     </script>
     
     <div class="form">
@@ -43,85 +131,29 @@
       </div>
       Amount: <input type="text" name="amount" id="amount">
       <br>
-      Tag some friends: <select multiple id="friends" name="friends" enabled="false"></select>
       <br>
-      <br>
-      <input type="button" value="Let's do this!" onclick="confirmCampaign()">
-      <script type="text/javascript">
-      function confirmCampaign() {
-        var amount = parseFloat(document.getElementById("amount").value, "contribution amount");
-        if (!isNaN(amount)) {
-          var friendsMultiselect = document.getElementById("friends");
-          var friends = new Array();
-          var friendIDs = new Array();
-          for (var i = 1; i < friendsMultiselect.options.length; i++) {
-            if (friendsMultiselect.options[i].selected || friendsMultiselect.options[0].selected) {
-              friends.push(friendsMultiselect.options[i].text);
-              friendIDs.push(friendsMultiselect.options[i].value);
-            }
-          }
-          alert("Amount: " + roundToTwoDecimals(amount) + "\nCharity: " + charity.charityName + "\nFriends: " + friends);
-
-          var CampaignContribution = Parse.Object.extend("CampaignContribution");
-          var contribution = new CampaignContribution();
-           
-          contribution.set("contributor", userID);
-          contribution.set("amount", amount);
-          contribution.set("charityId", charity.charityId);
-          contribution.set("friends", friendIDs);
-          contribution.set("campaignId", campaignId);
-
-          contribution.save(null, {
-            success: function(contribution) {
-              // Execute any campaign that should take place after the object is saved.
-              // alert('New object created with objectId: ' + contribution.id);
-              alert("Thank you for donating!");
-            },
-            error: function(contribution, error) {
-              // Execute any logic that should take place if the save fails.
-              // error is a Parse.Error with an error code and message.
-              // alert('Failed to create new object, with error code: ' + error.message);
-            }
-          });
-
-          /*
-          todo: PayPal
-          Headers:
-            [
-              "X-PAYPAL-SECURITY-USERID:jb-us-seller_api1.paypal.com, ",
-              "X-PAYPAL-SECURITY-PASSWORD:WX4WTU3S8MY44S7F, ",
-              "X-PAYPAL-SECURITY-SIGNATURE:AFcWxV21C7fd0v3bYYYRCpSSRl31A7yDhhsPUU2XhtMoZXsWHFxu-RWy, ",
-              "X-PAYPAL-APPLICATION-ID:APP-80W284485P519543T, ",
-              "X-PAYPAL-REQUEST-DATA-FORMAT:NV, ",
-              "X-PAYPAL-RESPONSE-DATA-FORMAT:JSON, ",
-              "X-PAYPAL-DEVICE-IPADDRESS:127.0.0.1, ",
-              "X-PAYPAL-REQUEST-SOURCE:merchant-php-sdk-2.0.96, ",
-              "X-PAYPAL-SANDBOX-EMAIL-ADDRESS:Platform.sdk.seller@gmail.com, "
-            ]
-          Body:
-            actionType=PAY&
-            cancelUrl=https://www.c.com&
-            currencyCode=USD&
-            returnUrl=https://www.r.com&
-            requestEnvelope.errorLanguage=en_US&
-            receiverList.receiver(0).amount=50&
-            receiverList.receiver(0).email=billgates@microsoft.com
-          Response:
-          {
-            "responseEnvelope": 
-            {
-              "timestamp": "2014-10-17T13:59:42.366-07:00",
-              "ack": "Success",
-              "correlationId": "6d57a7118493a",
-              "build": "13085071"
-            },
-            "payKey": "AP-1FA9332788515363P",
-            "paymentExecStatus": "CREATED"
-          }     
-          */
-        }
-      }
-      </script>
+      <input type="button" value="Let's do this!" onclick="pay()">
+      <div id="payForm">
+        <div id="payPopup"> 
+          <form action="#" method="post" id="form" >
+            Payment<hr/>
+            <br>
+            Name: <input type="text" name="name" id="name" />
+            <br>
+            Credit Card Number: <input type="text" name="name" id="ccNumber" />
+            <br>
+            Credit Card Expiration Date: <input type="text" name="name" id="ccExpiration" />
+            <br>
+            Credit Card CVV: <input type="text" name="name" id="ccCVV" />
+            <br>
+            Credit Card Billing Zip Code: <input type="text" name="name" id="ccZip" />
+            <br>
+            <br>
+            <input type="button" value="Pay" onclick="check_empty(confirmPay)">
+            <input type="button" value="Cancel" onclick="hidePay()">
+          </form>
+        </div>
+      </div>
     </div>
   </body>
 </html>

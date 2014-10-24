@@ -19,9 +19,9 @@ window.fbAsyncInit = function() {
     version    : 'v2.1' // use version 2.1
   });
 
-  FB.getLoginStatus(function(response) {
-    statusChangeCallback(response);
-  });
+  // FB.getLoginStatus(function(response) {
+  //   statusChangeCallback(response);
+  // });
 };
 
 // This is called with the results from from FB.getLoginStatus().
@@ -47,45 +47,45 @@ function getTaggableFriends() {
   var response = FB.getAuthResponse();
   // console.log(response);
   userID = response.userID;
-  FB.api(
-    "/me/taggable_friends",
-    function (response) {
-      if (response && !response.error) {
-        /* handle the result */
-        listOfFriends = response.data.sort(function(a, b){
-          var keyA = a.name.toLowerCase();
-          var keyB = b.name.toLowerCase();
-          // Compare the 2 names
-          if(keyA < keyB) return -1;
-          if(keyA > keyB) return 1;
-          return 0;
-        });
+  // FB.api(
+  //   "/me/taggable_friends",
+  //   function (response) {
+  //     if (response && !response.error) {
+  //       /* handle the result */
+  //       listOfFriends = response.data.sort(function(a, b){
+  //         var keyA = a.name.toLowerCase();
+  //         var keyB = b.name.toLowerCase();
+  //         // Compare the 2 names
+  //         if(keyA < keyB) return -1;
+  //         if(keyA > keyB) return 1;
+  //         return 0;
+  //       });
 
-        var select = document.getElementById("friends");
-        if (listOfFriends.length > 0) {
-          select.disabled = false;
-          var option = document.createElement('option');
-          option.text = "(select all)";
-          option.value = 0;
-          select.appendChild(option);
-          for(var i = 0; i < listOfFriends.length; i++) {
-            option = document.createElement('option');
-            option.text = listOfFriends[i].name;
-            option.value = listOfFriends[i].id;
-            select.appendChild(option);
-          }
-        } else {
-          select.disabled = true;
-          var option = document.createElement('option');
-            option.text = "No friends :-(";
-            select.appendChild(option);
-        }
-      } else {
-        select.disabled = true;
-        var option = document.createElement('option');
-          option.text = "No friends :-(";
-          select.appendChild(option);
-      }
-    }
-  );
+  //       var select = document.getElementById("friends");
+  //       if (listOfFriends.length > 0) {
+  //         select.disabled = false;
+  //         var option = document.createElement('option');
+  //         option.text = "(select all)";
+  //         option.value = 0;
+  //         select.appendChild(option);
+  //         for(var i = 0; i < listOfFriends.length; i++) {
+  //           option = document.createElement('option');
+  //           option.text = listOfFriends[i].name;
+  //           option.value = listOfFriends[i].id;
+  //           select.appendChild(option);
+  //         }
+  //       } else {
+  //         select.disabled = true;
+  //         var option = document.createElement('option');
+  //           option.text = "No friends :-(";
+  //           select.appendChild(option);
+  //       }
+  //     } else {
+  //       select.disabled = true;
+  //       var option = document.createElement('option');
+  //         option.text = "No friends :-(";
+  //         select.appendChild(option);
+  //     }
+  //   }
+  // );
 }

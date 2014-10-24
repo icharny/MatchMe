@@ -2,20 +2,16 @@
   <head>
     <title>Match Me</title>
     <script src="//www.parsecdn.com/js/parse-1.3.0.min.js"></script>
-    <style>
-      body { font-family: Helvetica, Arial, sans-serif; }
-      div { width: 800px; margin: 40px auto; padding: 20px; border: 2px solid #5298fc; }
-      h1 { font-size: 30px; margin: 0; }
-      p { margin: 40px 0; }
-      em { font-family: monospace; }
-      a { color: #5298fc; text-decoration: none; }
-      .right { float: right; } 
-      .hide { display: none; } 
-    </style>
+    <link rel="stylesheet" href="/stylesheets/styles.css">
   </head>
   <body>
     <script type="text/javascript" src="initializeParse.js"></script>
     <script type="text/javascript">
+
+      function campaignNotFound(campaignID) {
+        alert('Campaign with ID ' + campaignID + ' was not found, but feel free to start your own campaign!');
+        document.getElementById("contributeCampaignIdTextField").value = '';
+      }
 
       function startCampaign() {
         window.location = "/startCampaign"
@@ -28,10 +24,14 @@
         query.equalTo("campaignId", campaignId);
         query.first({
           success: function(object) {
-            window.location = "/contribute?campaignId=" + campaignId;
+            if (object == null) {
+              campaignNotFound(campaignId);
+            } else {
+              window.location = "/contribute?campaignId=" + campaignId;
+            }
           },
           error: function(error) {
-            alert("Campaign with ID " + campaignId + " was not found. Please check that you have inputted the correct campaign ID");
+            campaignNotFound(campaignId);
           }
         });
       }
@@ -43,25 +43,29 @@
         query.equalTo("campaignId", campaignId);
         query.first({
           success: function(object) {
-            window.location = "/campaignProgress?campaignId=" + campaignId;
+            if (object == null) {
+              campaignNotFound(campaignId);
+            } else {
+              window.location = "/campaignProgress?campaignId=" + campaignId;
+            }
           },
           error: function(error) {
-            alert("Campaign with ID " + campaignId + " was not found. Please check that you have inputted the correct campaign ID");
+            campaignNotFound(campaignId);
           }
         });
       }
     </script>
-    <div>
+    <div class="form">
       <input id="startCampaignButton" type="button" value="Start a MatchMe campaign" onclick="startCampaign()"/>
       <br>
       <br>
-      <form id="contributeForm">
-        <input id="contributeCampaignIdTextField" type="text" />  
-        <input id="contributeButton" type="button" value="&lt;-- Contribute to this campaign" onclick="contribute()"/>
+      <form id="contributeForm"> 
+        <input id="contributeButton" type="button" value="Contribute to this campaign:" onclick="contribute()"/>
+        <input id="contributeCampaignIdTextField" type="text" /> 
       </form>
       <form id="progressForm">
+        <input id="checkProgressButton" type="button" value="Check the progress of this campaign:" onclick="checkProgress()"/>
         <input id="progressCampaignIdTextField" type="text" />  
-        <input id="checkProgressButton" type="button" value="&lt;-- Check the progress of this campaign" onclick="checkProgress()"/>
       </form>
     </div>
 </html>
